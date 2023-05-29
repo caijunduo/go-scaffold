@@ -1,7 +1,7 @@
 package user
 
-type UserController struct{}
+type Controller struct{}
 
-func New() *UserController {
-	return &UserController{}
+func New() *Controller {
+	return &Controller{}
 }

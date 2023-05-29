@@ -1,6 +1,8 @@
 package model
 
 import (
+	"github.com/caijunduo/go-scaffold/pkg/auth"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -17,4 +19,9 @@ type User struct {
 // TableName sets the insert table name for this struct type
 func (u *User) TableName() string {
 	return "`blog`.`users`"
+}
+
+func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
+	u.Password, err = auth.Encrypt(u.Password)
+	return
 }

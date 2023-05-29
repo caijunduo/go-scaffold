@@ -9,20 +9,19 @@ import (
 // ErrResponse 定义了发生错误时的返回消息.
 type ErrResponse struct {
 	// Code 指定了业务错误码.
-	Code string `json:"code"`
+	Code string `json:"code,omitempty"`
 
 	// Message 包含了可以直接对外展示的错误信息.
-	Message string `json:"message"`
+	Message string `json:"message,omitempty"`
 }
 
 func Response(c *gin.Context, err error, data interface{}) {
 	if err != nil {
-		hcode, code, message := errno.Decode(err)
-		c.JSON(hcode, ErrResponse{
+		status, code, message := errno.Decode(err)
+		c.JSON(status, ErrResponse{
 			Code:    code,
 			Message: message,
 		})
-
 		return
 	}
 

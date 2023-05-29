@@ -9,14 +9,14 @@ import (
 	"time"
 )
 
-// Logger 定义了 miniblog 项目的日志接口. 该接口只包含了支持的日志记录方法.
+// Logger 定义项目的日志接口. 该接口只包含了支持的日志记录方法.
 type Logger interface {
-	Debugw(msg string, keysAndValues ...interface{})
-	Infow(msg string, keysAndValues ...interface{})
-	Warnw(msg string, keysAndValues ...interface{})
-	Errorw(msg string, keysAndValues ...interface{})
-	Panicw(msg string, keysAndValues ...interface{})
-	Fatalw(msg string, keysAndValues ...interface{})
+	Debug(msg string, keysAndValues ...interface{})
+	Info(msg string, keysAndValues ...interface{})
+	Warn(msg string, keysAndValues ...interface{})
+	Error(msg string, keysAndValues ...interface{})
+	Panic(msg string, keysAndValues ...interface{})
+	Fatal(msg string, keysAndValues ...interface{})
 	Sync()
 }
 
@@ -45,7 +45,6 @@ func NewLogger(opt *Option) *zapLogger {
 		opt = NewOption()
 	}
 
-	// 将文本格式的日志级别，例如 info 转换为 zapcore.Level 类型以供后面使用
 	var zapLevel zapcore.Level
 	if err := zapLevel.UnmarshalText([]byte(opt.Level)); err != nil {
 		// 如果指定了非法的日志级别，则默认使用 info 级别
@@ -60,7 +59,7 @@ func NewLogger(opt *Option) *zapLogger {
 	encoderConfig.TimeKey = "timestamp"
 	// 指定时间序列化函数，将时间序列化为 `2006-01-02 15:04:05.000` 格式，更易读
 	encoderConfig.EncodeTime = func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
-		enc.AppendString(t.Format("2006-01-02 15:04:05.000"))
+		enc.AppendString(t.Format(time.RFC3339Nano))
 	}
 	// 指定 time.Duration 序列化函数，将 time.Duration 序列化为经过的毫秒数的浮点数
 	// 毫秒数比默认的秒数更精确
@@ -99,68 +98,70 @@ func NewLogger(opt *Option) *zapLogger {
 }
 
 // Sync 调用底层 zap.Logger 的 Sync 方法，将缓存中的日志刷新到磁盘文件中. 主程序需要在退出前调用 Sync.
-func Sync() { std.Sync() }
+func Sync() {
+	std.Sync()
+}
 
 func (l *zapLogger) Sync() {
 	_ = l.z.Sync()
 }
 
-// Debugw 输出 debug 级别的日志.
-func Debugw(msg string, keysAndValues ...interface{}) {
+// Debug 输出 debug 级别的日志.
+func Debug(msg string, keysAndValues ...interface{}) {
 	std.z.Sugar().Debugw(msg, keysAndValues...)
 }
 
-func (l *zapLogger) Debugw(msg string, keysAndValues ...interface{}) {
+func (l *zapLogger) Debug(msg string, keysAndValues ...interface{}) {
 	l.z.Sugar().Debugw(msg, keysAndValues...)
 }
 
-// Infow 输出 info 级别的日志.
-func Infow(msg string, keysAndValues ...interface{}) {
+// Info 输出 info 级别的日志.
+func Info(msg string, keysAndValues ...interface{}) {
 	std.z.Sugar().Infow(msg, keysAndValues...)
 }
 
-func (l *zapLogger) Infow(msg string, keysAndValues ...interface{}) {
+func (l *zapLogger) Info(msg string, keysAndValues ...interface{}) {
 	l.z.Sugar().Infow(msg, keysAndValues...)
 }
 
-// Warnw 输出 warning 级别的日志.
-func Warnw(msg string, keysAndValues ...interface{}) {
+// Warn 输出 warning 级别的日志.
+func Warn(msg string, keysAndValues ...interface{}) {
 	std.z.Sugar().Warnw(msg, keysAndValues...)
 }
 
-func (l *zapLogger) Warnw(msg string, keysAndValues ...interface{}) {
+func (l *zapLogger) Warn(msg string, keysAndValues ...interface{}) {
 	l.z.Sugar().Warnw(msg, keysAndValues...)
 }
 
-// Errorw 输出 error 级别的日志.
-func Errorw(msg string, keysAndValues ...interface{}) {
+// Error 输出 error 级别的日志.
+func Error(msg string, keysAndValues ...interface{}) {
 	std.z.Sugar().Errorw(msg, keysAndValues...)
 }
 
-func (l *zapLogger) Errorw(msg string, keysAndValues ...interface{}) {
+func (l *zapLogger) Error(msg string, keysAndValues ...interface{}) {
 	l.z.Sugar().Errorw(msg, keysAndValues...)
 }
 
-// Panicw 输出 panic 级别的日志.
-func Panicw(msg string, keysAndValues ...interface{}) {
+// Panic 输出 panic 级别的日志.
+func Panic(msg string, keysAndValues ...interface{}) {
 	std.z.Sugar().Panicw(msg, keysAndValues...)
 }
 
-func (l *zapLogger) Panicw(msg string, keysAndValues ...interface{}) {
+func (l *zapLogger) Panic(msg string, keysAndValues ...interface{}) {
 	l.z.Sugar().Panicw(msg, keysAndValues...)
 }
 
-// Fatalw 输出 fatal 级别的日志.
-func Fatalw(msg string, keysAndValues ...interface{}) {
+// Fatal 输出 fatal 级别的日志.
+func Fatal(msg string, keysAndValues ...interface{}) {
 	std.z.Sugar().Fatalw(msg, keysAndValues...)
 }
 
-func (l *zapLogger) Fatalw(msg string, keysAndValues ...interface{}) {
+func (l *zapLogger) Fatal(msg string, keysAndValues ...interface{}) {
 	l.z.Sugar().Fatalw(msg, keysAndValues...)
 }
 
 // C 解析传入的 context，尝试提取关注的键值，并添加到 zap.Logger 结构化日志中.
-func C(ctx context.Context) *zapLogger {
+func C(ctx context.Context) Logger {
 	return std.C(ctx)
 }
 
