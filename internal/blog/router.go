@@ -23,7 +23,7 @@ func installRouters(g *gin.Engine) error {
 
 	v1 := g.Group("/v1")
 	{
-		user := userV1.New()
+		user := userV1.Controller{}
 		// 创建 users 路由分组
 		users := v1.Group("/users")
 		{

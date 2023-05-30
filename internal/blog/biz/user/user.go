@@ -3,10 +3,10 @@ package user
 import (
 	"context"
 	"errors"
+	"github.com/caijunduo/go-scaffold/internal/blog/api/v1"
 	"github.com/caijunduo/go-scaffold/internal/blog/model"
 	"github.com/caijunduo/go-scaffold/internal/blog/store"
 	"github.com/caijunduo/go-scaffold/internal/pkg/errno"
-	"github.com/caijunduo/go-scaffold/pkg/api/blog_api_v1"
 	"github.com/jinzhu/copier"
 	"gorm.io/gorm"
 	"regexp"
@@ -14,8 +14,8 @@ import (
 
 type Biz interface {
 	Context(ctx context.Context) *biz
-	Create(req *blog_api_v1.CreateUserRequest) error
-	Show(username string) (*blog_api_v1.ShowUserResponse, error)
+	Create(req *v1.CreateUserRequest) error
+	Show(username string) (*v1.ShowUserResponse, error)
 }
 
 func New() Biz {
@@ -33,7 +33,7 @@ func (b *biz) Context(ctx context.Context) *biz {
 	return b
 }
 
-func (b *biz) Create(req *blog_api_v1.CreateUserRequest) error {
+func (b *biz) Create(req *v1.CreateUserRequest) error {
 	var m model.User
 	_ = copier.Copy(&m, req)
 
@@ -47,7 +47,7 @@ func (b *biz) Create(req *blog_api_v1.CreateUserRequest) error {
 	return nil
 }
 
-func (b *biz) Show(username string) (*blog_api_v1.ShowUserResponse, error) {
+func (b *biz) Show(username string) (*v1.ShowUserResponse, error) {
 	user, err := store.User().GetUsername(username)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -56,7 +56,7 @@ func (b *biz) Show(username string) (*blog_api_v1.ShowUserResponse, error) {
 		return nil, err
 	}
 
-	var resp blog_api_v1.ShowUserResponse
+	var resp v1.ShowUserResponse
 	_ = copier.Copy(&resp, user)
 
 	return &resp, nil

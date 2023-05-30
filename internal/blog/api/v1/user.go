@@ -1,7 +1,7 @@
-package blog_api_v1
+package v1
 
 import (
-	"github.com/caijunduo/go-scaffold/pkg/api/common_api"
+	"github.com/caijunduo/go-scaffold/internal/pkg/api"
 	"github.com/caijunduo/go-scaffold/pkg/codec"
 	"github.com/gin-gonic/gin"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -61,7 +61,7 @@ type Userinfo struct {
 }
 
 type GetUserRequest struct {
-	common_api.Paginate
+	api.Paginate
 }
 
 func (req *GetUserRequest) Validate(c *gin.Context) error {
